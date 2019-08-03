@@ -1,0 +1,63 @@
+
+<app-layout></app-layout>
+
+<div class="container-fluid">
+<!--    <div class="row">-->
+<!--      <div class="card-body bg-white mt-4">-->
+<!--      <h1>Update your profile</h1>-->
+<!--     </div>-->
+
+<!--    </div>-->
+  <div class="card">
+    <div class="card-body">
+      <div class="card-container">
+        <h4 class="card-title">Current Profile Information </h4>
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+  <!--            <div  class="alert alert-danger" *ngIf="error_message"> {{error_message}} </div>-->
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input [value]="email" disabled id="email" type="text" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label for="user">User Name</label>
+              <input id="user" type="text" formControlName="user" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.user.errors }" />
+              <div *ngIf="submitted && f.user.errors" class="invalid-feedback">
+                <div class="alert-danger" *ngIf="f.user.errors.required">Username is required</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input value="081239123" id="phone" type="text" formControlName="phone" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.phone.errors }" />
+              <div *ngIf="submitted && f.phone.errors" class="invalid-feedback">
+                <div class="alert-danger" *ngIf="f.phone.errors.required">Phone is required</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" autocomplete="off" formControlName="password" required class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+              <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                <div class="alert-danger" *ngIf="f.password.errors.required">Password is required</div>
+                <div class="alert-danger" *ngIf="f.password.errors.minlength">Password must be at least 6 characters</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input type="password" autocomplete="off" id="confimPassword" formControlName="confirmpassword" [errorStateMatcher]="matcher" class="form-control"/>
+              <div id="error-message" class="alert-danger" *ngIf="loginForm.hasError('notSame')"   >
+              Passwords don't match.
+              </div>
+            </div>
+
+            <div class="form-group m-0">
+              <button type="submit" class="btn btn-primary btn-block">
+                Update
+              </button>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--<app-footer></app-footer>-->

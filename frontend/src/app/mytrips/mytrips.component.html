@@ -1,0 +1,341 @@
+
+<app-layout></app-layout>
+
+<div class="container-fluid">
+    <div class="row">
+      <div class="card-body bg-white mt-4">
+      <h1>Your Transactions</h1>
+     </div>
+
+    </div>
+  <div class="card text-white">
+    <div class="card-body">
+      <p-table #myTable class="table" [columns]="cols" [value]="myTrips" [paginator]="true" [rows]="5" [responsive]="true" >
+        <ng-template pTemplate="caption">
+          <div class="input-group md-form form-sm form-1 pl-0">
+            <div class="input-group-prepend">
+                           <span class="input-group-text" id="basic-text1">
+                           <i class="fa fa-search"
+                           aria-hidden="true"></i></span>
+            </div>
+            <input class="form-control my-0 py-1" type="text" placeholder="Search" aria-label="Search" pInputText size="50"
+                   placeholder="Global Filter" (input)="myTable.filterGlobal($event.target.value, 'contains')">
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th class="text-center" *ngFor="let col of columns">
+              {{col.header}}
+            </th>
+          </tr>
+          <tr>
+            <th *ngFor="let col of columns" [ngSwitch]="col.field">
+              <input class="search-buttons form-control" *ngSwitchCase="'From'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'To'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'Owner'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'Status'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
+
+              <div class="text-center">
+                <button *ngIf="col.field == 'Date' || col.field == 'Time'"  class="btn btn-xs btn-info" (click)="clearfilter()">
+                  <i class="fa fa-times"  aria-hidden="true"></i>
+                </button>
+                <p-calendar
+                        *ngSwitchCase="'Date'"
+                        [(ngModel)]="dateFilters"
+                        class="custom"
+                        appendTo="body"
+                        readonlyInput="true"
+                        [minDate]="yesterday"
+                        dateFormat="yy-mm-dd"
+                        hideOnDateTimeSelect="true"
+                        (onSelect)="filter($event, col.field, col.filterMatchMode)">
+                </p-calendar>
+                <p-calendar *ngSwitchCase="'Time'"
+                            [(ngModel)]="TimeFilters"
+                            class="custom"
+                            readonlyInput="true"
+                            [timeOnly]="true"
+                            (onSelect)="TimeFilter($event,col.field, col.filterMatchMode)">
+
+                </p-calendar>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex" >
+          <tr [pSelectableRow]="rowData" >
+            <td class="text-center" *ngFor="let col of columns">
+              {{rowData[col.field]}}
+
+              <div  *ngIf="col.field === 'Status'">
+                <span *ngIf="rowData['status'] === 'Booked' " class="badge badge-dark">Booked</span>
+                <span *ngIf="rowData['status'] === 'Open' "  class = "badge badge-info">Open</span>
+                <span *ngIf="rowData['status'] === 'Completed' "  class = "badge badge-success">Completed</span>
+                <span *ngIf="rowData['status'] === 'Canceled' "  class = "badge badge-warning">Canceled</span>
+              </div>
+
+              <div  class="btn group" role="group" *ngIf="col.field === 'Action'">
+                <button *ngIf="rowData['Owner'] !== 'Abdallah' && rowData['status'] == 'Open' || rowData['status'] == 'Booked'"
+                   (click)="CancelReservation(index)"
+                  class="btn btn-dark btn-action">
+                  <i class="fa fa-calendar-times-o"></i></button>
+                <button *ngIf="rowData['Owner'] == 'Abdallah' && rowData['status'] != 'Completed' "
+                        (click)="Edit(index,rowData)" class="btn btn-secondary btn-action"><i class="fa fa-edit"></i></button>
+                <button (click)="MoreDetails(rowData)" class="btn btn-info btn-action"><i class="fa fa-info"></i></button>
+
+                <button *ngIf="rowData['Owner'] != 'Abdallah' && rowData['status'] == 'Completed' " (click)="RateDriver(rowData)"
+                        class="btn  btn-outline-primary btn-action"><i class="fa fa-star-o"></i></button>
+              </div>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>
+
+
+<!--Dialog For Edit New Trip Button-->
+<p-dialog header="Edit Trip" [(visible)]="EditTrip" [modal]="true" [responsive]="true" [style]="{width: '500px', minWidth: '200px'}"
+          [baseZIndex]="10000" [closeOnEscape]="true">
+  <form [formGroup]="registerForm" (ngSubmit)="EditTripDialog()">
+  <div class="modal-body form-horizontal">
+    <div class="modal-header">
+      <h5 class="modal-title">Trip Information</h5>
+    </div>
+    <div class="modal-body form-horizontal">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>From</label>
+            <input type="text"  [(ngModel)]="Frominput" formControlName="From" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.From.errors }" />
+            <div *ngIf="submitted && f.From.errors" class="invalid-feedback">
+              <div *ngIf="f.From.errors.required"> From Field is required</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>To</label>
+            <input type="text"  [(ngModel)]="Toinput" formControlName="To" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.To.errors }" />
+            <div *ngIf="submitted && f.To.errors" class="invalid-feedback">
+              <div *ngIf="f.To.errors.required"> To Field is required</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Date</label>
+            <div class="input-group">
+              <p-calendar
+                      [(ngModel)]="Dateinput"
+                      formControlName="Date"
+                      class="custom"
+                      readonlyInput="true"
+                      [minDate]="today"
+                      dateFormat="yy-mm-dd"
+                      [style]="{'position': 'relative', 'overflow': 'visible', 'z-index': '999'}">
+              </p-calendar>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Time</label>
+            <div class="input-group">
+              <p-calendar
+                      [(ngModel)]="Timeinput"
+                      formControlName="Time"
+                      class="custom"
+                      readonlyInput="true"
+                      [minDate]="today"
+                      timeOnly = true
+                      dateFormat="yy-mm-dd">
+              </p-calendar>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Available Seats</label>
+            <input type="number"  [(ngModel)]="avalibaleSeatsinput" formControlName="AvSeats" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.AvSeats.errors }" />
+            <div *ngIf="submitted && f.AvSeats.errors" class="invalid-feedback">
+              <div *ngIf="f.AvSeats.errors.required"> Available Seats Field is required</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>Comments</label>
+            <textarea type="text" formControlName="Comments" [(ngModel)]="Commentinput" class="form-control" name="user_name" autocomplete="off"  placeholder=""></textarea>
+          </div>
+        </div>
+
+        <div class="modal-header">
+          <h5 class="modal-title">Vehicle Information</h5>
+        </div>
+
+        <div class="modal-body form-horizontal">
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Driver Name </label>
+                <input type="text"  [(ngModel)]="DriverNameinput" formControlName="DriverName" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.DriverName.errors }" />
+                <div *ngIf="submitted && f.DriverName.errors" class="invalid-feedback">
+                  <div *ngIf="f.DriverName.errors.required"> Driver Name  Field is required</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Vehicle Type</label>
+                <input type="text"  [(ngModel)]="VehicleTypeinput" formControlName="VehicleType" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.VehicleType.errors }" />
+                <div *ngIf="submitted && f.VehicleType.errors" class="invalid-feedback">
+                  <div *ngIf="f.VehicleType.errors.required"> Vehicle Type Field is required</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Production Year</label>
+                <input type="text"  [(ngModel)]="ProductionYearinput" formControlName="ProdYear" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.ProdYear.errors }" />
+                <div *ngIf="submitted && f.ProdYear.errors" class="invalid-feedback">
+                  <div *ngIf="f.ProdYear.errors.required"> Production Year Field is required</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Car Plate</label>
+                <input type="text"  [(ngModel)]="CarPlateinput" formControlName="CarPlate" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.CarPlate.errors }" />
+                <div *ngIf="submitted && f.CarPlate.errors" class="invalid-feedback">
+                  <div *ngIf="f.CarPlate.errors.required"> Car Plate Field is required</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Number Of Seats</label>
+                <input type="number"   [(ngModel)]="NofSeatsinput" formControlName="NofSeats" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.NofSeats.errors }" />
+                <div *ngIf="submitted && f.NofSeats.errors" class="invalid-feedback">
+                  <div *ngIf="f.NofSeats.errors.required"> Number Of Seats Field is required</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="alert alert-danger" *ngIf="ErrorMessage">{{ErrorMessage}}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <button  style="float: right" type="button" pButton icon="pi pi-check" (click)="EditTripDialog(rowid)" label="Edit"></button>
+    <button  type="submit" pButton  (click)="EditTrip = false" label="Cancel"></button>
+
+  </p-footer>
+  </form>
+</p-dialog>
+
+<!--&lt;!&ndash; Dialog For Reserve Button&ndash;&gt;-->
+<p-dialog    header="Cancel Reservation" [(visible)]="CancelReserve" [modal]="true" [responsive]="true" [style]="{width: '400px', minWidth: '200px'}"
+             [baseZIndex]="10000">
+  <div class="modal-body text-center">
+    <h5> Are You Sure to Cancel This Trip ?</h5>
+  </div>
+  <p-footer>
+    <button type="button" pButton icon="pi pi-check" (click)="ConfirmCancelReservation(rowid)" label="Yes"></button>
+    <button type="button" pButton icon="pi pi-close" (click)="CancelReserve=false" label="No" class="ui-button-secondary"></button>
+  </p-footer>
+</p-dialog>
+
+<!--&lt;!&ndash; Dialog For Delete Button&ndash;&gt;-->
+<p-dialog    header="Delete Trip" [(visible)]="DeleteTrip" [modal]="true" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}"
+           [baseZIndex]="10000">
+  <div class="modal-body text-center">
+    <h5> Are You Sure ?</h5>
+  </div>
+  <p-footer>
+    <button type="button" pButton icon="pi pi-check" (click)="ConfirmDeleteTrip(rowid)" label="Yes"></button>
+    <button type="button" pButton icon="pi pi-close" (click)="DeleteTrip=false" label="No" class="ui-button-secondary"></button>
+  </p-footer>
+</p-dialog>
+
+
+<!--&lt;!&ndash; Dialog For Show More Details Button&ndash;&gt;-->
+<p-dialog  header="More Details" [(visible)]="ShowMore" [modal]="true" [responsive]="true" [style]="{width: '400px', minWidth: '200px'}"
+           [baseZIndex]="10000">
+  <div  class="modal-body">
+    <div class="form-group row">
+      <label class="col-sm-4 control-label">Driver Name</label>
+      <div class="col-sm-8">
+
+        <input type="text" class="form-control input-sm"  [(ngModel)]="DriverName" readonly>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-4 control-label">Vehicle Type</label>
+      <div class="col-sm-8">
+
+        <input type="text" class="form-control input-sm"  [(ngModel)]="VehicleType" readonly>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-4 control-label">Production Year</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm"  [(ngModel)]="ProductionYear" readonly >
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-4 control-label">Car Plate</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm"  [(ngModel)]="CarPlate" readonly>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label class="col-sm-4 control-label">Number Of Seats</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm"  [(ngModel)]="NofSeats" readonly>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>Comments</label>
+        <div class="input-group">
+          <textarea type="text" class="form-control" [(ngModel)]="Comments" name="user_name" autocomplete="off"  readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <button  type="button" pButton icon="pi pi-check" (click)="ShowMore=false" label="Ok"></button>
+  </p-footer>
+</p-dialog>
+
+<!--&lt;!&ndash; Dialog For Rating Button&ndash;&gt;-->
+<p-dialog    header="Rate Driver " [(visible)]="RateDriverModal" [modal]="true" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}"
+             [baseZIndex]="10000">
+  <div class="modal-body text-center">
+       <ngb-rating [(rate)]="currentRate">
+         <ng-template let-fill="fill">
+           <span class="star" [class.filled]="fill === 100">★</span>
+         </ng-template>
+       </ngb-rating>
+  </div>
+
+  <p-footer>
+    <button type="button" pButton icon="pi pi-check" (click)="ConfrimRateDriver(currentRate)" label="Rate"></button>
+  </p-footer>
+</p-dialog>

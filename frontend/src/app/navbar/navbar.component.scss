@@ -1,0 +1,117 @@
+nav{
+  width: 100%;
+}
+
+body { font-family: "Bitstream Vera Serif Bold", serif }
+
+img{
+  width: auto;
+  height: 50px;
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
+}
+
+
+.navbar .dropdown-toggle, .navbar .dropdown-menu a {
+  cursor: pointer;
+}
+
+.navbar .dropdown-item.active, .navbar .dropdown-item:active {
+  color: inherit;
+  text-decoration: none;
+  background-color: inherit;
+}
+
+.navbar .dropdown-item:focus, .navbar .dropdown-item:hover {
+  color: #16181b;
+  text-decoration: none;
+  background-color: #f8f9fa;
+}
+
+@media (min-width: 767px) {
+  .navbar .dropdown-toggle:not(.nav-link)::after {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: .5em;
+    vertical-align: 0;
+    border-bottom: .3em solid transparent;
+    border-top: .3em solid transparent;
+    border-left: .3em solid;
+  }
+}
+
+.hvrcenter {
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: perspective(1px) translateZ(0);
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px transparent;
+  position: relative;
+  overflow: hidden;
+}
+.hvrcenter:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  right: 50%;
+  bottom: 0;
+  background: gray;
+  height: 2px;
+  -webkit-transition-property: left, right;
+  transition-property: left, right;
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-timing-function: ease-out;
+  transition-timing-function: ease-out;
+}
+.hvrcenter:hover:before, .hvrcenter:focus:before, .hvrcenter:active:before {
+  background-color: gray;
+  left: 0;
+  right: 0;
+}
+
+.navbar-nav {
+  margin-left: 50px;
+}
+
+.menu-items {
+  li {
+    margin-right: 50px;
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .navbar-nav {
+    margin-left: 30px;
+  }
+
+}
+@media screen and (min-width: 1600px) {
+  .navbar-nav {
+    margin-left: 30px;
+  }
+}
+@media screen and (min-width: 1900px) {
+  .navbar-nav {
+    margin-left: 30px;
+  }
+  .hvrcenter  {
+    padding-left:30px;
+    padding-right:30px;
+  }
+}
+
+
+@media screen and (max-width: 600px) {
+  .divider {
+    height: 1px;
+    margin: 9px 0;
+    overflow: hidden;
+    background-color: #e5e5e5;
+  }
+}

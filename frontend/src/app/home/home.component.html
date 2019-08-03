@@ -1,0 +1,97 @@
+
+<div style="background-color: #666666;">
+
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<form class="login100-form validate-form">
+					<app-login *ngIf="!loginService.displayRegistration"></app-login>
+					<app-registration *ngIf="loginService.displayRegistration"></app-registration>
+				</form>
+
+				<div class="login100-more" style="background-image: url('../../assets/joint-travel.jpg');">
+					  <div class="menu-container">
+						<!-- Menu -->
+						<ul class="menu">
+						  <li class="menu-apple">
+							<a href="#">
+							  <i class="fa fa-apple apple-icon" aria-hidden="true"></i>
+							</a>
+						  </li>
+						  <li class="menu-home">
+							<a href="home">
+							  <span>Home</span>
+							</a>
+						  </li>
+						  <li class="menu-about">
+							<a (click)="homeDisplay='about'">
+							  <span>About</span>
+							</a>
+						  </li>
+						  <li class="menu-contact">
+							<a (click)="homeDisplay='contact'">
+							  <span>Contact Us</span>
+							</a>
+						  </li>
+						  <li class="menu-help">
+							<a (click)="homeDisplay='help'">
+							  <span>Help</span>
+							</a>
+						  </li>
+						  <li class="menu-search">
+							<a href="#">
+							  <i class="fa fa-search" aria-hidden="true"></i>
+							</a>
+						  </li>
+						  <li class="menu-store">
+							<a href="#">
+							  <i class="fa fa-shopping-bag" aria-hidden="true"></i>
+							</a>
+						  </li>
+						</ul>
+
+						<!-- Search -->
+						<div class="menu-search-container">
+						  <div class="menu-search-input">
+						  <form action="">
+							<a href="#">
+							  <i class="fa fa-search" aria-hidden="true"></i>
+							</a>
+							<input class="menu-search-input" type="text" aria-label="Search apple.com" placeholder="Search apple.com" autocorrect="off" autocapitalize="off" autocomplete="off" spellcheck="false">
+						  </form>
+						  </div>
+						  <a class="menu-search-close" href="#">
+							<i class="fa fa-close" aria-hidden="true"></i>
+						  </a>
+						  <div class="search-sub-menu">
+						  <h3>Quick Links</h3>
+						  <ul>
+							<li><a href="#">Find a store</a></li>
+							<li><a href="#">Accessories</a></li>
+							<li><a href="#">iPod</a></li>
+							<li><a href="#">iOS</a></li>
+							<li><a href="#">Gift Cards</a></li>
+						  </ul>
+						</div>
+						</div>
+
+					  </div>
+
+					<div class="intro-section">
+						<div class="hero-section-text" [hidden]="!(homeDisplay === 'home')">
+							<h1 class="mission-section">OUR MISSION</h1>
+							<h5>To simplify and improve the lives of people, and build an awesome organisation that inspires.</h5>
+						</div>
+						<app-about [hidden]="!(homeDisplay === 'about')"></app-about>
+						<app-help [hidden]="!(homeDisplay === 'help')"></app-help>
+						<app-contact [hidden]="!(homeDisplay === 'contact')"></app-contact>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+

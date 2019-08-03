@@ -1,0 +1,51 @@
+
+<app-layout></app-layout>
+
+<div class="container-fluid">
+    <div class="row">
+      <div class="card-body bg-white mt-4">
+      <h1>Your Transactions</h1>
+     </div>
+
+    </div>
+  <div class="card text-white">
+    <div class="card-body">
+      <p-table #myTable class="table" [columns]="cols" [value]="ratings" [paginator]="true" [rows]="5" [responsive]="true" >
+        <ng-template pTemplate="caption">
+          <div class="input-group md-form form-sm form-1 pl-0">
+            <div class="input-group-prepend">
+                           <span class="input-group-text" id="basic-text1">
+                           <i class="fa fa-search"
+                           aria-hidden="true"></i></span>
+            </div>
+            <input class="form-control my-0 py-1" type="text" placeholder="Search" aria-label="Search" pInputText size="50"
+                   placeholder="Global Filter" (input)="myTable.filterGlobal($event.target.value, 'contains')">
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th class="text-center" *ngFor="let col of columns">
+              {{col.header}}
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex" >
+          <tr [pSelectableRow]="rowData">
+            <td class="text-center" *ngFor="let col of columns">
+              <div *ngIf="col.field !== 'Rate'" style="padding: 20px;">{{rowData[col.field]}}</div>
+
+              <div *ngIf="col.field === 'Rate'">
+                <ngb-rating [rate]="rowData[col.field]" [readonly]="true" max="5" style="padding: 0px;">
+                 <ng-template let-fill="fill">
+                   <span class="star" [class.filled]="fill === 100">★</span>
+                 </ng-template>
+               </ngb-rating>
+              </div>
+            </td>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>
