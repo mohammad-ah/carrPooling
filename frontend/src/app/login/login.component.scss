@@ -31,10 +31,10 @@ body {
       border-color: transparent;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
       &.fat {
-        padding: 10px;
+        padding: 5px;
       }
       .card-title {
-        margin-bottom: 30px;
+        margin-bottom: 20px;
       }
     }
     .form-control {
@@ -47,7 +47,7 @@ body {
       padding: 12px 10px;
     }
     .footer {
-      margin: 40px 0;
+      margin: 20px 0;
       color: #888;
       text-align: center;
     }
@@ -67,4 +67,9 @@ body {
       padding: 15px;
     }
   }
+}
+
+.new-registration {
+  color: #007ad9;
+  cursor: pointer;
 }
