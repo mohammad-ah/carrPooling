@@ -32,4 +32,7 @@ class Reservation (models.Model):
 	trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
 	traveler = models.ForeignKey(User, on_delete=models.CASCADE)
 
+	class Meta:
+		unique_together = [['traveler', 'trip']]
+
 
