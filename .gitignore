@@ -1,5 +1,18 @@
 DS_STORE
 
+*.egg-info
+*.pot
+*.py[co]
+.tox/
+__pycache__
+MANIFEST
+docs/_build/
+docs/locale/
+tests/coverage_html/
+tests/.coverage
+build/
+tests/report/
+
 /dist/
 /bazel-out
 /integration/bazel/bazel-*
