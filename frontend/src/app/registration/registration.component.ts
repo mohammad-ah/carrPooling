@@ -56,7 +56,7 @@ export class RegistrationComponent implements OnInit {
     if (this.registerForm.invalid) {
       return;
     }
-
+;
     delete this.registerForm.value['confirmPassword'];
     this.registerForm.value['gender'] = this.genderValue;
     this.userService.registerUser(this.registerForm.value).subscribe(

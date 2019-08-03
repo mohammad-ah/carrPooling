@@ -258,7 +258,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>From</label>
-                            <input type="text"  [(ngModel)]="Frominput" formControlName="From" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.From.errors }" />
+                            <input type="text"  [(ngModel)]="Frominput" formControlName="start_from" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.From.errors }" />
                             <div *ngIf="submitted && f.From.errors" class="invalid-feedback">
                                 <div *ngIf="f.From.errors.required"> From Field is required</div>
                             </div>
@@ -267,7 +267,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>To</label>
-                            <input type="text"  [(ngModel)]="Toinput" formControlName="To" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.To.errors }" />
+                            <input type="text"  [(ngModel)]="Toinput" formControlName="to" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.To.errors }" />
                             <div *ngIf="submitted && f.To.errors" class="invalid-feedback">
                                 <div *ngIf="f.to.errors.required"> To Field is required</div>
                             </div>
@@ -295,7 +295,7 @@
                             <label>Time</label>
                             <div class="input-group">
                                 <p-calendar
-                                        formControlName="Time"
+                                        formControlName="time"
                                         [(ngModel)]="Timeinput"
                                         class="custom"
                                         readonlyInput="true"

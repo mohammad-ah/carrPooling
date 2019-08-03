@@ -13,5 +13,5 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
     this.array = JSON.parse(localStorage.getItem('User'));
     this.userName = this.array['email'];
-  }
+}
 }

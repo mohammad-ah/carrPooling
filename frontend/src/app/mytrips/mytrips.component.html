@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row">
       <div class="card-body bg-white mt-4">
-      <h1>Your Transactions</h1>
+      <h1>Your Trips</h1>
      </div>
 
     </div>
@@ -30,17 +30,16 @@
           </tr>
           <tr>
             <th *ngFor="let col of columns" [ngSwitch]="col.field">
-              <input class="search-buttons form-control" *ngSwitchCase="'From'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
-              <input class="search-buttons form-control" *ngSwitchCase="'To'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
-              <input class="search-buttons form-control" *ngSwitchCase="'Owner'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
-              <input class="search-buttons form-control" *ngSwitchCase="'Status'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'start_from'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'to'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'user'" pInputText type="text" (input)="myTable.filter($event.target.value, col.field, col.filterMatchMode)">
 
               <div class="text-center">
-                <button *ngIf="col.field == 'Date' || col.field == 'Time'"  class="btn btn-xs btn-info" (click)="clearfilter()">
+                <button *ngIf="col.field == 'date' || col.field == 'time'"  class="btn btn-xs btn-info" (click)="clearfilter()">
                   <i class="fa fa-times"  aria-hidden="true"></i>
                 </button>
                 <p-calendar
-                        *ngSwitchCase="'Date'"
+                        *ngSwitchCase="'date'"
                         [(ngModel)]="dateFilters"
                         class="custom"
                         appendTo="body"
@@ -50,7 +49,7 @@
                         hideOnDateTimeSelect="true"
                         (onSelect)="filter($event, col.field, col.filterMatchMode)">
                 </p-calendar>
-                <p-calendar *ngSwitchCase="'Time'"
+                <p-calendar *ngSwitchCase="'time'"
                             [(ngModel)]="TimeFilters"
                             class="custom"
                             readonlyInput="true"
@@ -66,32 +65,121 @@
         <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex" >
           <tr [pSelectableRow]="rowData" >
             <td class="text-center" *ngFor="let col of columns">
-              {{rowData[col.field]}}
-
-              <div  *ngIf="col.field === 'Status'">
-                <span *ngIf="rowData['status'] === 'Booked' " class="badge badge-dark">Booked</span>
-                <span *ngIf="rowData['status'] === 'Open' "  class = "badge badge-info">Open</span>
-                <span *ngIf="rowData['status'] === 'Completed' "  class = "badge badge-success">Completed</span>
-                <span *ngIf="rowData['status'] === 'Canceled' "  class = "badge badge-warning">Canceled</span>
+              <div  *ngIf="col.field !== 'status'">
+                {{rowData[col.field]}}
+              </div>
+              <div  *ngIf="col.field === 'status'">
+                <span *ngIf="rowData['status'] === 2 " class="badge badge-dark">Booked</span>
+                <span *ngIf="rowData['status'] === 1"  class = "badge badge-info">Open</span>
+                <span *ngIf="rowData['status'] === 3 "  class = "badge badge-success">Completed</span>
+                <span *ngIf="rowData['status'] === 4 "  class = "badge badge-warning">Canceled</span>
               </div>
 
               <div  class="btn group" role="group" *ngIf="col.field === 'Action'">
-                <button *ngIf="rowData['Owner'] !== 'Abdallah' && rowData['status'] == 'Open' || rowData['status'] == 'Booked'"
-                   (click)="CancelReservation(index)"
-                  class="btn btn-dark btn-action">
-                  <i class="fa fa-calendar-times-o"></i></button>
-                <button *ngIf="rowData['Owner'] == 'Abdallah' && rowData['status'] != 'Completed' "
-                        (click)="Edit(index,rowData)" class="btn btn-secondary btn-action"><i class="fa fa-edit"></i></button>
+
+                <button (click)="Edit(index,rowData)" class="btn btn-secondary btn-action"><i class="fa fa-edit"></i></button>
                 <button (click)="MoreDetails(rowData)" class="btn btn-info btn-action"><i class="fa fa-info"></i></button>
 
-                <button *ngIf="rowData['Owner'] != 'Abdallah' && rowData['status'] == 'Completed' " (click)="RateDriver(rowData)"
-                        class="btn  btn-outline-primary btn-action"><i class="fa fa-star-o"></i></button>
               </div>
         </ng-template>
       </p-table>
     </div>
   </div>
 </div>
+
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="card-body bg-white mt-4">
+      <h1>Reserved Trips</h1>
+    </div>
+
+  </div>
+  <div class="card text-white">
+    <div class="card-body">
+      <p-table #ReservedTable class="table" [columns]="cols" [value]="ReservedTrips" [paginator]="true" [rows]="5" [responsive]="true" >
+        <ng-template pTemplate="caption">
+          <div class="input-group md-form form-sm form-1 pl-0">
+            <div class="input-group-prepend">
+                           <span class="input-group-text" id="basic-text1">
+                           <i class="fa fa-search"
+                              aria-hidden="true"></i></span>
+            </div>
+            <input class="form-control my-0 py-1" type="text" placeholder="Search" aria-label="Search" pInputText size="50"
+                   placeholder="Global Filter" (input)="ReservedTable.filterGlobal($event.target.value, 'contains')">
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th class="text-center" *ngFor="let col of columns">
+              {{col.header}}
+            </th>
+          </tr>
+          <tr>
+            <th *ngFor="let col of columns" [ngSwitch]="col.field">
+              <input class="search-buttons form-control" *ngSwitchCase="'start_from'" pInputText type="text" (input)="ReservedTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'to'" pInputText type="text" (input)="ReservedTable.filter($event.target.value, col.field, col.filterMatchMode)">
+              <input class="search-buttons form-control" *ngSwitchCase="'user'" pInputText type="text" (input)="ReservedTable.filter($event.target.value, col.field, col.filterMatchMode)">
+
+              <div class="text-center">
+                <button *ngIf="col.field == 'date' || col.field == 'time'"  class="btn btn-xs btn-info" (click)="clearfilter()">
+                  <i class="fa fa-times"  aria-hidden="true"></i>
+                </button>
+                <p-calendar
+                        *ngSwitchCase="'date'"
+                        [(ngModel)]="dateFilters"
+                        class="custom"
+                        appendTo="body"
+                        readonlyInput="true"
+                        [minDate]="yesterday"
+                        dateFormat="yy-mm-dd"
+                        hideOnDateTimeSelect="true"
+                        (onSelect)="filter($event, col.field, col.filterMatchMode)">
+                </p-calendar>
+                <p-calendar *ngSwitchCase="'time'"
+                            [(ngModel)]="TimeFilters"
+                            class="custom"
+                            readonlyInput="true"
+                            [timeOnly]="true"
+                            (onSelect)="TimeFilter($event,col.field, col.filterMatchMode)">
+
+                </p-calendar>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex" >
+          <tr [pSelectableRow]="rowData" >
+            <td class="text-center" *ngFor="let col of columns">
+              <div  *ngIf="col.field !== 'status'">
+                {{rowData[col.field]}}
+              </div>
+              <div  *ngIf="col.field === 'status'">
+                <span *ngIf="rowData['status'] === 2 " class="badge badge-dark">Booked</span>
+                <span *ngIf="rowData['status'] === 1"  class = "badge badge-info">Open</span>
+                <span *ngIf="rowData['status'] === 3 "  class = "badge badge-success">Completed</span>
+                <span *ngIf="rowData['status'] === 4 "  class = "badge badge-warning">Canceled</span>
+              </div>
+
+              <div  class="btn group" role="group" *ngIf="col.field === 'Action'">
+                <button *ngIf="rowData['status'] == 1 || rowData['status'] == 2"
+                        (click)="CancelReservation(index)"
+                        class="btn btn-dark btn-action">
+                  <i class="fa fa-calendar-times-o"></i></button>
+
+                <button (click)="MoreDetails(rowData)" class="btn btn-info btn-action"><i class="fa fa-info"></i></button>
+
+                <button *ngIf="rowData['status'] == 1 " (click)="RateDriver(rowData)"
+                class="btn  btn-outline-primary btn-action"><i class="fa fa-star-o"></i></button>
+              </div>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+
 <app-footer></app-footer>
 
 
@@ -108,7 +196,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>From</label>
-            <input type="text"  [(ngModel)]="Frominput" formControlName="From" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.From.errors }" />
+            <input type="text"  [(ngModel)]="Frominput" formControlName="start_from" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.From.errors }" />
             <div *ngIf="submitted && f.From.errors" class="invalid-feedback">
               <div *ngIf="f.From.errors.required"> From Field is required</div>
             </div>
@@ -118,7 +206,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>To</label>
-            <input type="text"  [(ngModel)]="Toinput" formControlName="To" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.To.errors }" />
+            <input type="text"  [(ngModel)]="Toinput" formControlName="to" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.To.errors }" />
             <div *ngIf="submitted && f.To.errors" class="invalid-feedback">
               <div *ngIf="f.To.errors.required"> To Field is required</div>
             </div>
@@ -131,7 +219,7 @@
             <div class="input-group">
               <p-calendar
                       [(ngModel)]="Dateinput"
-                      formControlName="Date"
+                      formControlName="date"
                       class="custom"
                       readonlyInput="true"
                       [minDate]="today"
@@ -148,7 +236,7 @@
             <div class="input-group">
               <p-calendar
                       [(ngModel)]="Timeinput"
-                      formControlName="Time"
+                      formControlName="time"
                       class="custom"
                       readonlyInput="true"
                       [minDate]="today"

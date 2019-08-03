@@ -12,6 +12,13 @@ export class TripsService {
     return this.http.get('http://127.0.0.1:8000/api/trips/');
   }
 
+  listMyTrips() {
+    return this.http.get('http://127.0.0.1:8000/api/myTrips/');
+  }
+  listMyReservedTrip() {
+    return this.http.get('http://127.0.0.1:8000/api/reservation/');
+
+  }
 
   AddNewTrip(data) {
     return this.http.post('http://127.0.0.1:8000/api/trips/', data);
