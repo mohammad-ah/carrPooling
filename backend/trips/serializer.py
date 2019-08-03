@@ -5,12 +5,12 @@ from .models import Trip, Reservation
 
 class TripSerializer(serializers.ModelSerializer):
 	vehicle = VehicleSerializer(many=False)
-	available_seats_to_book = serializers.SerializerMethodField("calculate_available_seats")
+	available_seats = serializers.SerializerMethodField("seats_available_to_book")
 
-	def calculate_available_seats(self, trip):
-		print(self)
+	def seats_available_to_book(self, trip):
+		reservation_num = Reservation.objects.filter(trip=trip).count()
+		return trip.available_seats - reservation_num
 
-		return 5
 
 	class Meta:
 		model = Trip
