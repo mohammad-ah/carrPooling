@@ -20,14 +20,6 @@ import { MytripsComponent } from './mytrips/mytrips.component';
 import {UserService} from './services/user.service';
 import {NeedAuthGuard} from './services/need-auth-guard.service';
 import {MyInterceptor} from './services/interceptor.service';
-import { HomeComponent } from './home/home.component';
-import { AboutComponent } from './about/about.component';
-import { ContactComponent } from './contact/contact.component';
-import { HelpComponent } from './help/help.component';
-import {EmbedVideo} from "ngx-embed-video/dist";
-import {NgbRatingModule} from "@ng-bootstrap/ng-bootstrap";
-import { DratingComponent } from './drating/drating.component';
-import { ManageProfileComponent } from './manage-profile/manage-profile.component';
 
 @NgModule({
   declarations: [
@@ -39,12 +31,6 @@ import { ManageProfileComponent } from './manage-profile/manage-profile.componen
     FooterComponent,
     AllTripsComponent,
     MytripsComponent,
-    HomeComponent,
-    AboutComponent,
-    ContactComponent,
-    HelpComponent,
-    DratingComponent,
-    ManageProfileComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,8 +47,6 @@ import { ManageProfileComponent } from './manage-profile/manage-profile.componen
     BrowserAnimationsModule,
     ToggleButtonModule,
     UiSwitchModule,
-    EmbedVideo,
-    NgbRatingModule
   ],
 
   providers: [

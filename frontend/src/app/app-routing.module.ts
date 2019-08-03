@@ -8,9 +8,6 @@ import { ResetpasswordComponent } from './resetpassword/resetpassword.component'
 import { AllTripsComponent } from './all-trips/all-trips.component';
 import {MytripsComponent} from './mytrips/mytrips.component';
 import {NeedAuthGuard} from './services/need-auth-guard.service';
-import {HomeComponent} from './home/home.component';
-import {DratingComponent} from './drating/drating.component';
-import {ManageProfileComponent} from "./manage-profile/manage-profile.component";
 
 const routes: Routes = [
   {path: '', component:  LoginComponent},
@@ -18,9 +15,6 @@ const routes: Routes = [
   {path: 'reset', component:  ResetpasswordComponent},
   {path: 'alltrips', component:  AllTripsComponent, canActivate: [NeedAuthGuard]},
   {path: 'mytrips', component:  MytripsComponent,  canActivate: [NeedAuthGuard]},
-    {path: 'home', component:  HomeComponent,  canActivate: [NeedAuthGuard]},
-    {path: 'rating', component:  DratingComponent,  canActivate: [NeedAuthGuard]},
-    {path: 'manage-profile', component: ManageProfileComponent,  canActivate: [NeedAuthGuard]},
 ];
 @NgModule({
   declarations: [],

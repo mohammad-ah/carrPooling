@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import { Table } from 'primeng/table';
 import {Validators, FormGroup, FormBuilder} from '@angular/forms';
 import {NgbRatingConfig} from '@ng-bootstrap/ng-bootstrap';
-
+import {TripsService} from '../services/trips.service';
 
 @Component({
   selector: 'app-mytrips',
@@ -47,80 +47,119 @@ export class MytripsComponent implements OnInit {
   registerForm: FormGroup;
   submitted = false;
   data: any[];
-  currentRate;
-  constructor(private formBuilder: FormBuilder, config: NgbRatingConfig) {
+  DataFromBack: any[]; UserId; OwnerName ; OwnerGender ; Time;
+  ReservedTrips:  any[];
+  ReservedDataFromBack: any;
+  constructor(private formBuilder: FormBuilder, config: NgbRatingConfig, private tripService: TripsService ) {
     // customize default values of ratings used by this component tree
     config.max = 5;
+    this.DataFromBack = [];
+
   }
 
   @ViewChild('myTable') private _table: Table;
 
 
   ngOnInit() {
-    this.currentRate = 4;
+
+    this.tripService.listMyTrips().subscribe(
+        data => {
+          this.DataFromBack.push(data);
+          this.DataFromBack = this.DataFromBack[0];
+          let test: any [];
+          test = [];
+         const array = JSON.parse(localStorage.getItem('User'));
+          this.UserId = array['id'];
+          for (let i = 0; i < this.DataFromBack.length; i++) {
+            if (this.DataFromBack[i]['vehicle']['user']['id'] === this.UserId) {
+              this.OwnerName = this.DataFromBack[i]['vehicle']['user']['username'];
+              this.OwnerGender = this.DataFromBack[i]['vehicle']['user']['gender'];
+              this.DriverName = this.DataFromBack[i]['vehicle']['driver_name'];
+              this.VehicleType = this.DataFromBack[i]['vehicle']['type'];
+              this.CarPlate = this.DataFromBack[i]['vehicle']['car_plate'];
+              this.ProductionYear = this.DataFromBack[i]['vehicle']['production_year'];
+              this.NofSeats = this.DataFromBack[i]['vehicle']['seats'];
+              this.Time = this.timeValidation(this.DataFromBack[i]['Time']);
+              test.push({'id': this.DataFromBack[i]['id'], 'time':
+                this.Time, 'type': this.VehicleType, 'car_plate': this.CarPlate,
+                'driver_name': this.DriverName, 'production_year': this.ProductionYear, 'seats': this.NofSeats,
+                'user': this.OwnerName, 'user_gender': this.OwnerGender,
+                'available_seats': this.DataFromBack[i]['available_seats'], 'comments': this.DataFromBack[i]['comments']
+                , 'start_from': this.DataFromBack[i]['start_from'] , 'date': this.DataFromBack[i]['date'],
+                'to': this.DataFromBack[i]['to'], 'status': this.DataFromBack[i]['status']});
+            }
+            this.myTrips = test;
+          }
+
+        },
+        err => console.error(err),
+        () => console.log('done loading posts')
+    );
+
+
+    this.tripService.listMyReservedTrip().subscribe(
+        data => {
+          this.ReservedDataFromBack = data;
+          let test: any [];
+          test = [];
+          const array = JSON.parse(localStorage.getItem('User'));
+          this.UserId = array['id'];
+          for (let i = 0; i < this.ReservedDataFromBack.length; i++) {
+            if (this.ReservedDataFromBack[i]['traveler']['id'] === this.UserId) {
+              console.log(this.ReservedDataFromBack[i]['trip'])
+              test.push({'id': this.ReservedDataFromBack[i]['trip']['id'],
+                'time': this.timeValidation(this.ReservedDataFromBack[i]['trip']['Time']),
+                'type': this.ReservedDataFromBack[i]['trip']['vehicle']['type'],
+                'car_plate': this.ReservedDataFromBack[i]['trip']['vehicle']['car_plate'],
+                'driver_name': this.ReservedDataFromBack[i]['trip']['vehicle']['driver_name'],
+                'production_year': this.ReservedDataFromBack[i]['trip']['vehicle']['production_year'],
+                'seats': this.ReservedDataFromBack[i]['trip']['vehicle']['seats'],
+                'user' : this.ReservedDataFromBack[i]['trip']['vehicle']['user']['username'],
+                'available_seats': this.ReservedDataFromBack[i]['trip']['available_seats'],
+                'comments': this.ReservedDataFromBack[i]['trip']['comments'],
+                'start_from': this.ReservedDataFromBack[i]['trip']['start_from'],
+                'date': this.ReservedDataFromBack[i]['trip']['date'],
+                'to': this.ReservedDataFromBack[i]['trip']['to'],
+                'status': this.ReservedDataFromBack[i]['trip']['status']});
+
+              // test.push(this.ReservedDataFromBack[i]);
+            }
+          }
+          this.ReservedTrips = test;
+          console.log(this.ReservedTrips)
+        },
+        err => console.error(err),
+        () => console.log('done loading posts')
+    );
+
 
     this.registerForm = this.formBuilder.group({
-      From: ['', Validators.required],
-      To: ['', Validators.required],
-      Date: ['', Validators.required],
-      Time: ['', Validators.required],
-      AvSeats: ['', Validators.required],
-      Comments: ['', Validators.required],
-      DriverName: ['', Validators.required],
-      VehicleType: ['', Validators.required],
-      ProdYear: ['', Validators.required],
+      start_from : ['', Validators.required],
+      to : ['', Validators.required],
+      date : ['', Validators.required],
+      time : ['', Validators.required],
+      AvSeats : ['', Validators.required],
+      Comments : ['', Validators.required],
+      DriverName : ['', Validators.required],
+      VehicleType : ['', Validators.required],
+      ProdYear : ['', Validators.required],
       CarPlate: ['', Validators.required],
       NofSeats: ['', Validators.required],
+      SelectedVehicle: [''],
     });
 
     this._table.filterConstraints['my'] = (value, filter): boolean => {
       return value === filter;
     };
-    this.myTrips = [
-      {
-        From: 'Ramallah', To: 'Nablus', Date: '2019-06-16', Time: '5:50', Owner: 'Mohammmad', Seats: '3',
-        DriverName: 'Mohammmad', VehicleType: 'BMW', ProductionYear: '2008', NofSeats: '4',
-        CarPlate: '662521111', Comments: 'fasfsafsafasfsfa', status: 'Booked'
-      },
-      {
-        From: 'Nablus', To: 'Ramallah', Date: '2019-06-01', Time: '13:03', Owner: 'Abdallah', Seats: '2',
-        DriverName: 'Abdallah', VehicleType: 'BMW', ProductionYear: '2007', NofSeats: '4',
-        CarPlate: '662521111', Comments: 'fasfsafsafasfsfa', status: 'Completed'
-      },
-      {
-        From: 'Bethlehem', To: 'Ramallah', Date: '2019-06-21', Time: '11:30', Owner: 'Abdallah', Seats: '4',
-        DriverName: 'Yousef', VehicleType: 'Audi', ProductionYear: '2015', NofSeats: '4',
-        CarPlate: '662521111', Comments: 'fasfsafsafasfsfa', status: 'Open'
-      },
-      {
-        From: 'Ramallah', To: 'Bethlehem', Date: '2019-06-18', Time: '5:20', Owner: 'Sanaa', Seats: '1',
-        DriverName: 'Sammer', VehicleType: 'Audi', ProductionYear: '2013', NofSeats: '4',
-        CarPlate: '662521111', Comments: 'fasfsafsafasfsfa', status: 'Completed'
-      },
-      {
-        From: 'Nablus', To: 'Bethlehem', Date: '2019-06-30', Time: '5:10', Owner: 'Abdallah', Seats: '2',
-        DriverName: 'Mohammmad', VehicleType: 'BMW', ProductionYear: '2009', NofSeats: '4',
-        CarPlate: '662521111', Comments: 'fasfsafsafasfsfa', status: 'Canceled'
-      },
-      {
-        From: 'Ramallah', To: 'Rawabi', Date: '2019-06-20', Time: '3:50', Owner: 'Abdallah', Seats: '3',
-        DriverName: 'Abdallah', VehicleType: 'Audi', ProductionYear: '2010', NofSeats: '4',
-        CarPlate: '662521111', Comments: 'fasfsafsafasfsfa', status: 'Completed'
-      },
-      {
-        From: 'Ramallah', To: 'Rawabi', Date: '2019-06-20', Time: '3:50', Owner: 'Mohammad', Seats: '3',
-        DriverName: 'Abdallah', VehicleType: 'Audi', ProductionYear: '2010', NofSeats: '4',
-        CarPlate: '662521111', Comments: 'fasfsafsafasfsfa', status: 'Open'
-      }
-    ];
+
 
     this.cols = [
-      {field: 'From', header: 'From'},
-      {field: 'To', header: 'To'},
-      {field: 'Date', header: 'Date'},
-      {field: 'Time', header: 'Time'},
-      {field: 'Owner', header: 'Owner'},
-      {field: 'Status', header: 'Status'},
+      {field: 'start_from', header: 'From'},
+      {field: 'to', header: 'To'},
+      {field: 'date', header: 'Date'},
+      {field: 'time', header: 'Time'},
+      {field: 'user', header: 'Owner'},
+      {field: 'status', header: 'Status'},
       {field: 'Action', header: 'Action'}
     ];
   }
@@ -144,6 +183,10 @@ export class MytripsComponent implements OnInit {
     this._table.filter(timeValue, field, 'contains');
   }
 
+  timeValidation(strTime) {
+    return strTime.replace(/:\d\d([ ap]|$)/, '$1');
+  }
+
   clearfilter() {
     this.dateFilters = '';
     this.TimeFilters = '';
@@ -152,39 +195,30 @@ export class MytripsComponent implements OnInit {
 
   MoreDetails(rowData) {
     this.ShowMore = !this.ShowMore;
-    this.DriverName = rowData['DriverName'];
-    this.VehicleType = rowData['VehicleType'];
-    this.CarPlate = rowData['CarPlate'];
-    this.ProductionYear = rowData['ProductionYear'];
-    this.NofSeats = rowData['NofSeats'];
-    this.Comments = rowData['Comments'];
+    this.DriverName = rowData['driver_name'];
+    this.VehicleType = rowData['type'];
+    this.CarPlate = rowData['car_plate'];
+    this.ProductionYear = rowData['production_year'];
+    this.NofSeats = rowData['seats'];
+    this.Comments = rowData['comments'];
   }
 
-  Delete(index) {
-    this.DeleteTrip = !this.DeleteTrip;
-    this.rowid = index;
-  }
 
-  ConfirmDeleteTrip(rowid) {
-    this.myTrips = this.myTrips.slice(0, rowid).concat(this.myTrips.slice(rowid + 1));
-    this.DeleteTrip = false;
-  }
 
   Edit(index, rowdata) {
     this.EditTrip = !this.EditTrip;
     this.rowid = index;
-    this.Frominput = rowdata['From'];
-    this.Toinput = rowdata['To'];
-    this.Dateinput = rowdata['Date'];
-    this.Timeinput = rowdata['Time'];
-    this.avalibaleSeatsinput = rowdata['NofSeats'];
-    this.Commentinput = rowdata['Comments'];
-    this.DriverNameinput = rowdata['DriverName'];
-    this.VehicleTypeinput = rowdata['VehicleType'];
-    this.CarPlateinput = rowdata['CarPlate'];
-    this.ProductionYearinput = rowdata['ProductionYear'];
-    this.NofSeatsinput = rowdata['NofSeats'];
-    this.Commentinput = rowdata['Comments'];
+    this.Frominput = rowdata['start_from'];
+    this.Toinput = rowdata['to'];
+    this.Dateinput = rowdata['date'];
+    this.Timeinput = rowdata['time'];
+    this.avalibaleSeatsinput = rowdata['available_seats'];
+    this.Commentinput = rowdata['comments'];
+    this.DriverNameinput = rowdata['driver_name'];
+    this.VehicleTypeinput = rowdata['type'];
+    this.CarPlateinput = rowdata['car_plate'];
+    this.ProductionYearinput = rowdata['production_year'];
+    this.NofSeatsinput = rowdata['seats'];
     this.data = rowdata;
 
   }
@@ -257,15 +291,12 @@ export class MytripsComponent implements OnInit {
     }
 
   ConfrimRateDriver(currentRate) {
-    console.log(currentRate)
     this.RateDriverModal = false;
-
   }
   CancelReservation() {
     this.CancelReserve = !this.CancelReserve;
   }
   ConfirmCancelReservation(rowid) {
-
     this.CancelReserve = false;
 
   }

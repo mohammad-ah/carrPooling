@@ -17,7 +17,7 @@ export class AllTripsComponent implements OnInit {
     @ViewChild('myDropDown') private _DropDown: Dropdown;
 
     cols: any[];
-    trips: [];
+    trips: any[];
     LadiesTrips: any[];
     AddNewTripArray: {};
     dateFilters: any;
@@ -30,19 +30,21 @@ export class AllTripsComponent implements OnInit {
     AddNew: boolean;
     OwnerName; OwnerGender;
     DriverName; VehicleType; ProductionYear; NofSeats; CarPlate; Comment; Time ;
-    Frominput; Toinput; Dateinput; Timeinput; Ownerinput; avalibaleSeatsinput; DriverNameinput;
-    VehicleTypeinput; ProductionYearinput; NofSeatsinput; CarPlateinput; Commentinput = '';
+    Frominput; Toinput; Dateinput; Timeinput; Ownerinput; avalibaleSeatsinput; Commentinput = '';
     ErrorMessage;
     registerForm: FormGroup;
     addNewVehicleForm: FormGroup;
     submitted = false;
     submittedVehicle = false;
     status: boolean;
-    DataFromBack;
-    SelectedVehicle; username; email; phone; gender; id; UserId; UserArray;
+    DataFromBack: any[];
+    AvaliableSearsFormBack;
+    SelectedVehicle; username; email; phone; gender; id;
     tripId;
+
     constructor(private formBuilder: FormBuilder, private tripService: TripsService ) {
         this.vehicles = [];
+        this.DataFromBack = [];
 
         this.tripService.getVehicle().subscribe(
             data => {
@@ -60,9 +62,13 @@ export class AllTripsComponent implements OnInit {
         this.ErrorMessage = '';
         this.tripService.list().subscribe(
             data => {
-                this.DataFromBack = data;
+                this.DataFromBack.push(data);
+                this.DataFromBack = this.DataFromBack[0];
+                let test: any [];
+                test = [];
 
                 for (let i = 0; i < this.DataFromBack.length; i++) {
+                    if (this.DataFromBack[i]['available_seats'] !== 0 ) {
                     this.OwnerName = this.DataFromBack[i]['vehicle']['user']['username'];
                     this.OwnerGender = this.DataFromBack[i]['vehicle']['user']['gender'];
                     this.DriverName = this.DataFromBack[i]['vehicle']['driver_name'];
@@ -71,16 +77,19 @@ export class AllTripsComponent implements OnInit {
                     this.ProductionYear = this.DataFromBack[i]['vehicle']['production_year'];
                     this.NofSeats = this.DataFromBack[i]['vehicle']['seats'];
                     this.Time = this.timeValidation(this.DataFromBack[i]['Time']);
-                    this.DataFromBack[i]['Time'] = this.Time;
-                    this.DataFromBack[i]['vehicle_Type'] =  this.VehicleType;
-                    this.DataFromBack[i]['car_plate'] =  this.CarPlate;
-                    this.DataFromBack[i]['DriverName'] =  this.DriverName;
-                    this.DataFromBack[i]['ProductionYear'] =  this.ProductionYear;
-                    this.DataFromBack[i]['NofSeats'] =  this.NofSeats;
-                    this.DataFromBack[i]['user'] =  this.OwnerName;
-                    this.DataFromBack[i]['user_gender'] =  this.OwnerGender;
+                    test.push({'id': this.DataFromBack[i]['id'], 'Time':
+                     this.Time, 'vehicle_Type': this.VehicleType, 'car_plate': this.CarPlate,
+                    'DriverName': this.DriverName, 'ProductionYear': this.ProductionYear, 'NofSeats': this.NofSeats,
+                        'user': this.OwnerName, 'user_gender': this.OwnerGender,
+                    'available_seats': this.DataFromBack[i]['available_seats'], 'comments': this.DataFromBack[i]['comments']
+                        , 'start_from': this.DataFromBack[i]['start_from'] , 'date': this.DataFromBack[i]['date'],
+                        'to': this.DataFromBack[i]['to']});
+
                 }
-                this.trips = this.DataFromBack;
+                 this.trips = test;
+              }
+
+
 
             },
             err => console.error(err),
@@ -196,14 +205,9 @@ export class AllTripsComponent implements OnInit {
         }
 
 
-        const ConvertedDate = this.ConvertDate(this.registerForm.value['Date']);
+        const ConvertedDate = this.ConvertDate(this.registerForm.value['date']);
         const CovertedTime = this.ConvertTime(this.Timeinput);
         this.registerForm.value.SelectedVehicle = this.SelectedVehicle;
-        this.UserArray = JSON.parse(localStorage.getItem('User'));
-        for (let j = 0; j < this.UserArray.length; j++) {
-            this.UserId = this.UserArray[j]['id'];
-        }
-
         const addNewTripData = {
                'start_from': this.registerForm.value['From'],
                'to': this.registerForm.value['To'],
@@ -215,10 +219,9 @@ export class AllTripsComponent implements OnInit {
            };
         this.tripService.AddNewTrip(addNewTripData).subscribe(
             response => {
-                console.log(response)
                 this.AddNew = false;
-                this.ngOnInit();
-            },
+                this.refrehTable();
+                },
             error => console.log(error)
         );
 
@@ -227,12 +230,11 @@ export class AllTripsComponent implements OnInit {
     addNewVehicledialog() {
         this.displayVehicle = !this.displayVehicle;
     }
-    reserveDialog(rowData){
+    reserveDialog(rowData) {
         this.display = !this.display;
         this.tripId = rowData.id;
     }
     reserveTrip() {
-        console.log(this.tripId);
         const traveler = JSON.parse(localStorage.getItem('User'));
         const UserId = traveler['id'];
         const ReservationObj = {
@@ -242,7 +244,7 @@ export class AllTripsComponent implements OnInit {
         // this.tripService.AddReservation(ReservationObj)
         this.tripService.AddReservation(ReservationObj).subscribe(
             response => {
-                console.log(response)
+                this.refrehTable();
                 this.display = false;
             },
             error => console.log(error)
@@ -250,6 +252,45 @@ export class AllTripsComponent implements OnInit {
 
     }
 
+    refrehTable() {
+        this.trips = [];
+        this.DataFromBack = [];
+        this.tripService.list().subscribe(
+            data => {
+                this.DataFromBack.push(data);
+                this.DataFromBack = this.DataFromBack[0];
+                let test: any [];
+                test = [];
+
+                for (let i = 0; i < this.DataFromBack.length; i++) {
+                    if (this.DataFromBack[i]['available_seats'] !== 0 ) {
+                        this.OwnerName = this.DataFromBack[i]['vehicle']['user']['username'];
+                        this.OwnerGender = this.DataFromBack[i]['vehicle']['user']['gender'];
+                        this.DriverName = this.DataFromBack[i]['vehicle']['driver_name'];
+                        this.VehicleType = this.DataFromBack[i]['vehicle']['type'];
+                        this.CarPlate = this.DataFromBack[i]['vehicle']['car_plate'];
+                        this.ProductionYear = this.DataFromBack[i]['vehicle']['production_year'];
+                        this.NofSeats = this.DataFromBack[i]['vehicle']['seats'];
+                        this.Time = this.timeValidation(this.DataFromBack[i]['Time']);
+                        test.push({'id': this.DataFromBack[i]['id'], 'Time':
+                            this.Time, 'vehicle_Type': this.VehicleType, 'car_plate': this.CarPlate,
+                            'DriverName': this.DriverName, 'ProductionYear': this.ProductionYear, 'NofSeats': this.NofSeats,
+                            'user': this.OwnerName, 'user_gender': this.OwnerGender,
+                            'available_seats': this.DataFromBack[i]['available_seats'], 'comments':this.DataFromBack[i]['comments']
+                            , 'start_from': this.DataFromBack[i]['start_from'] , 'date': this.DataFromBack[i]['date'],
+                            'to': this.DataFromBack[i]['to']});
+
+                    }
+                    this.trips = test;
+                }
+
+
+
+            },
+            err => console.error(err),
+            () => console.log('done loading posts')
+        );
+    }
     addNewVehicle() {
         this.submittedVehicle = true;
 
